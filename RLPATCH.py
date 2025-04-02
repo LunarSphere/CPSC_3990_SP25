@@ -283,12 +283,14 @@ class RLPEnvironment:
             # Convert normalized gray_value [0,1] to absolute [0,255]
             gray_abs = int(gray_value * 255)
             
-            # Calculate pixel coordinates
-            px = self.patch_region[0] + x * self.block_size
-            py = self.patch_region[1] + y * self.block_size
+            # Calculate pixel coordinates with explicit integer casting
+            px_start = int(self.patch_region[0] + x * self.block_size)
+            py_start = int(self.patch_region[1] + y * self.block_size)
+            px_end = int(px_start + self.block_size)
+            py_end = int(py_start + self.block_size)
             
-            # Draw block on image
-            image[py:py+self.block_size, px:px+self.block_size] = gray_abs
+            # Draw block on image using integer indices
+            image[py_start:py_end, px_start:px_end] = gray_abs
             
         return image
     
@@ -308,7 +310,7 @@ class RLPEnvironment:
         
         # Extract confidence for the object at the bbox location
         # This is a simplified version - actual implementation would depend on detector's output format
-        confidence = self.detector.get_confidence_at_bbox(image, self.bbox)
+        confidence =self.detector.get_confidence_at_bbox(image, self.bbox)
         
         return confidence
     
