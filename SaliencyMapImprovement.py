@@ -140,6 +140,7 @@ class CAMRLPAgent:
     
     def compute_cam(self, image):
         """Compute the Class Activation Map for the image"""
+        
         # Convert image to tensor
         img = np.array(image)
         if len(img.shape) == 2:  # If grayscale
@@ -519,6 +520,7 @@ class YOLOv5Detector:
         # Create a custom hook to get activations
         activations = []
         def hook_fn(module, input, output):
+            activations.clear()  # Clear previous activations
             activations.append(output.detach())
             
         # Get the target layer (usually the last convolutional layer)
@@ -545,11 +547,13 @@ class YOLOv5Detector:
             
             # Normalize to [0, 1]
             cam = (cam - cam.min()) / (cam.max() - cam.min() + 1e-7)
+            activations.clear()
             return cam
         else:
             # Fallback to a uniform CAM
+            activations.clear()
             return np.ones((img.shape[0], img.shape[1]))
-
+            
 def train_cam_rlp(detector, train_data, num_episodes=600, max_steps=25):
     """
     Train the RLP agent with CAM guidance to generate adversarial patches.
